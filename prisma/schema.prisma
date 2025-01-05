@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Politician {
+  id            String    @id @default(cuid())
+  firstName     String
+  lastName      String
+  party         String
+  state         String
+  district      String?
+  office        String?
+  fecCandidateId String?
+  bioguideId    String?   @unique
+  lastScrapedAt DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  votes         Vote[]
+  contributions Contribution[]
+  investments   Investment[]
+  reports       Report[]
+  bills         Bill[]
+  expenditures  Expenditure[]
+}
+
+model Vote {
+  id           String     @id @default(cuid())
+  billId       String
+  billTitle    String
+  votePosition String
+  voteDate     DateTime
+  politician   Politician @relation(fields: [politicianId], references: [id])
+  politicianId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Contribution {
+  id           String     @id @default(cuid())
+  amount       Float
+  date         DateTime
+  source       String
+  type         String     // e.g., "PAC", "Individual", "Corporate"
+  industry     String
+  politician   Politician @relation(fields: [politicianId], references: [id])
+  politicianId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Investment {
+  id           String     @id @default(cuid())
+  asset        String
+  value        Float
+  date         DateTime
+  type         String     // e.g., "Stock", "Bond", "Real Estate"
+  politician   Politician @relation(fields: [politicianId], references: [id])
+  politicianId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Report {
+  id           String     @id @default(cuid())
+  title        String
+  description  String
+  evidence     String[]
+  status       String     // e.g., "pending", "investigating", "resolved"
+  politician   Politician @relation(fields: [politicianId], references: [id])
+  politicianId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Bill {
+  id             String      @id @default(cuid())
+  billNumber     String      @unique
+  title          String
+  summary        String      @db.Text
+  introducedDate DateTime?
+  status         String
+  sponsorId      String?
+  sponsor        Politician? @relation(fields: [sponsorId], references: [id])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Expenditure {
+  id           String     @id @default(cuid())
+  amount       Float
+  date         DateTime
+  source       String
+  type         String     // e.g., "PAC", "Independent Expenditure"
+  industry     String
+  politician   Politician @relation(fields: [politicianId], references: [id])
+  politicianId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Campaign {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  type        String   // e.g., "local", "state", "federal"
+  status      String   // e.g., "active", "planning", "completed"
+  location    String
+  startDate   DateTime
+  endDate     DateTime?
+  participants Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
