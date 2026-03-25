@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Politician" ADD COLUMN     "lastScrapedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
